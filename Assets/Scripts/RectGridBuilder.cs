@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PathFinding;
+using System;
 
 public class RectGridBuilder : MonoBehaviour
 {
@@ -19,6 +20,12 @@ public class RectGridBuilder : MonoBehaviour
     protected Vector2Int[,] mIndices;
 
     protected RectGridCellA[,] rectGridCellAs;
+
+    public Color colorWalkable;
+    public Color colorNonWalkable;
+
+    public Transform mDestination;
+    public NPCMovement mNPCMovement;
 
     //Construimos nuestro grid
     protected void Construct(int numX, int numY)
@@ -173,10 +180,19 @@ public class RectGridBuilder : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
+            RayCastAndSetDestination();    
+        }
         if (Input.GetMouseButtonDown(1))
         {
             RaycastAndToogleWalkable();
         }
+    }
+
+    private void RayCastAndSetDestination()
+    {
+        
     }
 
     void RaycastAndToogleWalkable()
@@ -192,11 +208,28 @@ public class RectGridBuilder : MonoBehaviour
 
             var cellC = obj.GetComponent<RectGridCellC>();
 
-            
+            ToggleWalkable(cellC);
         }
     }
 
+    private void ToggleWalkable(RectGridCellC cellC)
+    {
+        if (cellC == null) { return; }
 
+        int x = cellC.gridCellA.Value.x;
+        int y = cellC.gridCellA.Value.y;
 
+        //Esto que hace?
+        cellC.gridCellA.isWalkable = !cellC.gridCellA.isWalkable;
 
+        if (cellC.gridCellA.isWalkable)
+        {
+            cellC.SetInnerColor(colorWalkable);
+        }
+        else
+        {
+            cellC.SetInnerColor(colorNonWalkable);
+        }
+
+    }
 }
