@@ -192,7 +192,24 @@ public class RectGridBuilder : MonoBehaviour
 
     private void RayCastAndSetDestination()
     {
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero, Mathf.Infinity);
         
+        if (!hit) { return; }
+
+        GameObject obj = hit.transform.gameObject;
+
+        if (!obj.TryGetComponent<RectGridCellC>(out RectGridCellC rect)) { return; }
+
+        Vector3 pos = mDestination.position;
+
+        pos.x = rect.gridCellA.Value.x;
+        pos.y = rect.gridCellA.Value.y;
+
+        mDestination.position = pos;
+
+        mNPCMovement.SetDestination(this, rect.gridCellA);
     }
 
     void RaycastAndToogleWalkable()
@@ -231,5 +248,30 @@ public class RectGridBuilder : MonoBehaviour
             cellC.SetInnerColor(colorNonWalkable);
         }
 
+    }
+
+    public static float GetManhattanCost(Vector2Int a, Vector2Int b)
+    {
+        return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
+    }
+
+    public static float GetEuclidianCost(Vector2Int a, Vector2Int b)
+    {
+        return GetCostBetweenTwoCells(a, b);
+    }
+
+    public static float GetCostBetweenTwoCells(Vector2Int a, Vector2Int b)
+    {
+        return Mathf.Sqrt(Mathf.Pow(a.x - b.x, 2) + Mathf.Pow(a.y - b.y, 2));
+    }
+
+    public RectGridCellA GetRectGridCellA(int x, int y) 
+    {
+        if (x >= 0 && x < columns && y >= 0 && y < rows)
+        {
+            return rectGridCellAs[x, y];
+        }
+
+        return null;
     }
 }
